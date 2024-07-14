@@ -11,7 +11,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import { getCategories } from "../utils/questionsApi";
 import Topic from "./Topic";
-import TopicFlipCard from "./TopicFlipCard";
 import QuizPage from "./QuizPage";
 import { socket } from "../socket";
 
@@ -25,7 +24,6 @@ export default function Topics({ userLogged, setUserLogged }) {
     try {
       const user = await AsyncStorage.getItem("userLogged");
       const avatar = await AsyncStorage.getItem("avatar_url");
-      console.log(avatar, "AVATAR");
       setUserLogged(user);
       setAvatar(avatar);
     } catch (error) {
@@ -37,29 +35,21 @@ export default function Topics({ userLogged, setUserLogged }) {
       .then((data) => {
         const { trivia_categories } = data;
         setTopics(trivia_categories);
+        console.log(trivia_categories);
       })
-      .catch((err) => console.log("err :>> ", err));;
+      .catch(() => console.log("Error getting Topic categories from API "));
     getUserLogged();
   }, []);
 
   const handleSelection = async (id, name) => {
-    console.log(id, "<< id");
-    console.log("topic name :>> ", name);
     await setSelectedTopic(id);
     if (userLogged && avatar) {
-      socket.emit(
-        "topic-selected",
-        id.toString(),
-        { username: userLogged, avatar_url: avatar },
-        () => {
-          console.log("Hellooo from the client");
-        }
-      );
+      socket.emit("topic-selected", id.toString(), {
+        username: userLogged,
+        avatar_url: avatar,
+      });
     }
   };
-  // useEffect(() => {
-  //   console.log("selectedTopic :>> ", selectedTopic);
-  // }, [selectedTopic]);
 
   if (selectedTopic === undefined) {
     return (
@@ -75,7 +65,8 @@ export default function Topics({ userLogged, setUserLogged }) {
             return (
               <Pressable
                 key={topic.id}
-                onPress={() => handleSelection(topic.id, topic.name)}>
+                onPress={() => handleSelection(topic.id, topic.name)}
+              >
                 <Topic topic={topic} />
               </Pressable>
             );

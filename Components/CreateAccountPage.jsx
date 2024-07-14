@@ -11,7 +11,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export default function CreateAccountPage({
-  setIsLoggedIn,
   currentScheme,
   avatars,
 }) {
@@ -25,7 +24,6 @@ export default function CreateAccountPage({
   const [currentSchemeNumber, setCurrentSchemeNumber] = useState(null);
   const [avatar, setAvatar] = useState([]);
 
-  // console.log("Avatars in CreateAccount>>>", avatars)
   const avatarsDrop = avatars.map((avatar) => {
     return { ...avatar, avatar_url: { uri: avatar.avatar_url } };
   });
@@ -52,16 +50,14 @@ export default function CreateAccountPage({
     };
 
     try {
-        const newUser = await postNewUser(postBody);
-        console.log(newUser);
+        await postNewUser(postBody);
         
         // Store the username in AsyncStorage
         await AsyncStorage.setItem('userLogged', usernameInput);
   
         navigation.navigate("AppNavigation");
       } catch (err) {
-        console.log("error posting new user:", err);
-        // return error message
+        console.log("Error posting new user:", err);
       }
   };
 
@@ -117,7 +113,6 @@ export default function CreateAccountPage({
           onChange={(e) => {
             const { _index, ...selectedAvatar } = e;
             setAvatar(e.avatar_id);
-            console.log("Selected Avatar ID:", avatar);
           }}
         />
         <View style={styles.checkbox}>
@@ -156,8 +151,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    // width: "95%",
-    // textAlign: "left",
     color: "#051C60",
     margin: 10,
   },

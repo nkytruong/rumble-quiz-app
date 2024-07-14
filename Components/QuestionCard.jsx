@@ -36,10 +36,6 @@ function QuestionCard({ theme, remainingTime }) {
   useEffect(() => {
     if (userLogged) {
       const handleQuestion = (question) => {
-        console.log(
-          "question sent from backend + avatars + players remaining :>> ",
-          question
-        );
         setResultColor("");
         setPlayersRemaining(question.remainingPlayers);
 
@@ -90,14 +86,10 @@ function QuestionCard({ theme, remainingTime }) {
 
     socket.emit("answer", answersFeedback);
 
-    console.log("answersFeedback :>> ", answersFeedback);
-    let resultColor;
     if (choice === rightAnswer) {
       setResultColor("green");
-      console.log("WIN!!!");
     } else {
       setResultColor("red");
-      console.log("LOSE :(");
       socket.emit("leave-game", userLogged);
       setEndOfGame("lose");
     }
@@ -136,7 +128,6 @@ function QuestionCard({ theme, remainingTime }) {
     answerButton: {
       borderRadius: 8,
       elevation: 3,
-      //backgroundColor: "#ff8c00",
       shadowOffset: { width: 1, height: 1 },
       shadowColor: "#333",
       shadowOpacity: 0.3,

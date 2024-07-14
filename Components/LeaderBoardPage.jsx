@@ -24,7 +24,6 @@ export default function LeaderBoardPage({ isLoading, setIsLoading }) {
 
   useEffect(() => {
     if (userLogged) {
-      // console.log("userLogged useeff my leaderboard", userLogged);
       getUsersPoints()
         .then(({ leaderboard }) => {
           const currentPlayerScore = leaderboard.find(
@@ -39,7 +38,6 @@ export default function LeaderBoardPage({ isLoading, setIsLoading }) {
           setUsersPoints(leaderboard);
           setIsLoading(false);
 
-          // console.log("userPoints", userPoints);
         })
         .catch((err) => console.log("err :>> ", err));;
     }
@@ -72,12 +70,6 @@ export default function LeaderBoardPage({ isLoading, setIsLoading }) {
   );
   }
 
-  // console.log(currentPlayerScore, "<<<currentPlayerScore");
-
-// if(isLoading){
-//   return <LoadingSpinner/>
-// }
-
 
 const styles = StyleSheet.create({
   h2: {
@@ -100,8 +92,5 @@ const styles = StyleSheet.create({
   rank: {
     fontSize: 25,
     textAlign: 'center'
-    },
-  leaderboard: {
-    // marginBottom: 500
-  }
+    }
 });

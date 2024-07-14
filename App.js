@@ -1,20 +1,15 @@
-import { useContext, useEffect, useState } from "react";
-import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
 import { StyleSheet, SafeAreaView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { PaperProvider, useTheme, DefaultTheme } from "react-native-paper";
-import * as Device from "expo-device";
+import { PaperProvider, DefaultTheme } from "react-native-paper";
 
 import { getAvatars } from "./utils/api";
 
 // components
-import Header from "./Components/Header";
 import LoginPage from "./Components/LoginPage";
 import CreateAccountPage from "./Components/CreateAccountPage";
 import MyAccount from "./Components/MyAccount";
 import Friends from "./Components/Friends";
 import NotificationsList from "./Components/NotificationsList";
-import QuizContainer from "./Components/QuizContainer";
 import LeaderBoard from "./Components/LeaderBoardPage";
 import QuizPage from "./Components/QuizPage";
 import LoadingPage from "./Components/LoadingPage";
@@ -33,13 +28,6 @@ import EndOfGame from "./Components/EndOfGame";
 
 const Stack = createNativeStackNavigator();
 
-/* const themeDark = {
-  ...DefaultTheme,
-  colors: colorsDark.colors,
-}; */
-
-//console.log("themeDf.colors :>> ", Object.keys(themeLight.colors));
-
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userLogged, setUserLogged] = useState("");
@@ -50,18 +38,11 @@ export default function App() {
 
   useEffect(() => {
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      // console.log("colorScheme :>> ", colorScheme);
       setCurrentScheme(colorScheme);
     });
-    console.log(
-      "deviceId logged :>> ",
-      Device.manufacturer,
-      Device.brand,
-      Device.modelName
-    );
+  
     return () => subscription.remove();
   }, []);
-  console.log("currentScheme app :>> ", currentScheme);
   const paperTheme =
     currentScheme === "dark"
       ? { ...DefaultTheme, colors: colorsDark }
@@ -70,14 +51,11 @@ export default function App() {
   const getDataFromStorage = async () => {
     const logged = await AsyncStorage.getItem("isLoggedIn");
     const user = await AsyncStorage.getItem("userLogged");
-    const user_avatar = await AsyncStorage.getItem("avatar_url");
+    // const user_avatar = await AsyncStorage.getItem("avatar_url");
 
-    // console.log("logged :>> ", logged);
     if (logged === "true") {
       setIsLoggedIn(true);
       setUserLogged(user);
-      // console.log("isLoggedIn if inside:>> ", isLoggedIn);
-      // console.log("userLogged inside getDataFromStorage :>> ", user);
     } else {
       setIsLoggedIn(false);
       setUserLogged("");
@@ -88,7 +66,6 @@ export default function App() {
     getDataFromStorage();
   }, []);
 
-  //console.log("isLoggedIn :>> ", isLoggedIn);
 
   useEffect(() => {
     getAvatars().then(({ avatars }) => {
@@ -96,7 +73,6 @@ export default function App() {
     });
   }, []);
 
-  // console.log("avatars app check :>> ", avatars);
 
   const AfterLogin = () => (
     <Stack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
@@ -148,14 +124,12 @@ export default function App() {
       </Stack.Screen>
     </Stack.Navigator>
   );
-  //  console.log("avatars in app", avatars)
 
   const BeforeLogin = () => (
     <Stack.Navigator initialRouteName="LoadingPage" screenOptions={{ headerShown: false, animation: "none" }}>
       <Stack.Screen
         name="LoadingPage"
         component={LoadingPage}
-        // options={{ headerShown: false }}
       />
       <Stack.Screen name="LogIn">
         {(props) => <LoginPage {...props} setIsLoggedIn={setIsLoggedIn} />}
@@ -170,7 +144,6 @@ export default function App() {
           />
         )}
       </Stack.Screen>
-      {/*  <Stack.Screen name="MyAccount" component={MyAccount} /> */}
       <Stack.Screen name="AppNavigation">
         {(props) => (
           <AppNavigation
@@ -199,7 +172,6 @@ export default function App() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    // backgroundColor: 'white',
   },
   container: {
     flex: 1,

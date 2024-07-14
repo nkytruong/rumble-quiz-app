@@ -6,7 +6,6 @@ import { getUserStats } from '../utils/api';
 import CustomStyles from '../Styles/CustomStyles';
 
 export default function Stats({username, userLogged}) {
-/*   console.log(userLogged, "<<<USerLogged in Stats") */
   const [userStats, setUserStats] = useState(({
     player_username: userLogged,
     games_played: 0,
@@ -24,7 +23,6 @@ export default function Stats({username, userLogged}) {
         .catch((err) => console.log("err :>> ", err));
     }
   }, [userLogged])
-/*   console.log(userStats, 'Userstats again') */
 
   if(!userStats) {
     return <Text>Loading...</Text>

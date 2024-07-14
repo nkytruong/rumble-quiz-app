@@ -11,7 +11,6 @@ export default function EditDetails({ setEditingMode, userDetails, avatars }) {
   const [newEmail, setNewEmail] = useState(userDetails.email);
   const [selectedAvatarId, setSelectedAvatarId] = useState(userDetails.avatar_id);
 
-  console.log(userDetails, 'USER')
 
   if (!avatars) {
     avatars = [];
@@ -21,12 +20,7 @@ export default function EditDetails({ setEditingMode, userDetails, avatars }) {
     return { ...avatar, avatar_url: { uri: avatar.avatar_url } };
   });
 
-
-console.log(newUsername, newEmail, selectedAvatarId)
-
-
   const saveUserDetails = async() => {
-    // const newUserData = { ...user, newUsername, newEmail };
     const patchBody = {
       username: newUsername,
       email: newEmail,
@@ -34,10 +28,8 @@ console.log(newUsername, newEmail, selectedAvatarId)
     }
     try {
       await patchUserByUsername(userDetails.username, patchBody)
-      console.log("Response", res)
       await AsyncStorage.setItem("userLogged", newUsername);
       const userLogged = await AsyncStorage.getItem("userLogged")
-      console.log("Updated userLogged, userLogged")
       setEditingMode(false);
     } catch(err) {
       console.log("Error updating user details", err)
@@ -83,7 +75,6 @@ console.log(newUsername, newEmail, selectedAvatarId)
         searchPlaceholder="Search..."
         onChange={(e) => {
           setSelectedAvatarId(e.avatar_id);
-          // console.log("Selected Avatar ID:", e);
         }}
       />
       <Button title="Save Details" onPress={saveUserDetails} />

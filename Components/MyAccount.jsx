@@ -25,8 +25,6 @@ function MyAccount({ theme, setIsLoggedIn, avatars }) {
   const { colors } = theme;
   const navigation = useNavigation();
 
-  // console.log("avatars in myaccount>>>", avatars)
-
   const getUserLogged = async () => {
     try {
       const user = await AsyncStorage.getItem("userLogged");
@@ -42,7 +40,6 @@ function MyAccount({ theme, setIsLoggedIn, avatars }) {
 
   useEffect(() => {
     if (userLogged) {
-      // console.log('userLogged useeff my acc', userLogged)
       getUserByUsername(userLogged).then(({ user }) => {
         setUserDetails(user);
         setColourTheme(user.colour_theme_id);
@@ -51,15 +48,18 @@ function MyAccount({ theme, setIsLoggedIn, avatars }) {
   }, [userLogged]);
 
   useEffect(() => {
-    getAvatar(userDetails.avatar_id)
-      .then((data) => {
-        // console.log("data avatar acc :>> ", data.avatar);
-        setUserLoggedAvatar(data.avatar);
-        AsyncStorage.setItem("avatar_url", data.avatar.avatar_url);
-      })
-      .catch((err) => console.log("err :>> ", err));
+    //console.log(userDetails)
+    if(userDetails){
+      getAvatar(userDetails.avatar_id)
+        .then(({avatar}) => {
+          console.log(avatar.avatar_url);
+
+          setUserLoggedAvatar(avatar);
+          AsyncStorage.setItem("avatar_url", avatar.avatar_url);
+        })
+        .catch((err) => console.log("Error getting avatar from async storage ", err));
+    }
   }, [userDetails]);
-  // console.log("userLoggedAvatar :>> ", userLoggedAvatar);
 
   const colour_themes = [
     { colour_theme_id: 1, theme_name: "Light" },
@@ -88,7 +88,6 @@ function MyAccount({ theme, setIsLoggedIn, avatars }) {
       display: "flex",
       flexDirection: "row",
       justifyContent: "space-around",
-      //alignItems: "center",
       backgroundColor: colors.orange,
       padding: 20,
     },

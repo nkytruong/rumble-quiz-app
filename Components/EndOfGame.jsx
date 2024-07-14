@@ -9,9 +9,7 @@ import {
 
 export default function EndOfGame({ endOfGameResult }) {
   return (
-    // <ImageBackground
-    //   source={require("../assets/jigsaw_puzzle_frame_6_a_white.jpg")}
-    // >
+
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
           <Text style={styles.text}>
@@ -19,7 +17,6 @@ export default function EndOfGame({ endOfGameResult }) {
           </Text>
         </View>
       </SafeAreaView>
-    // </ImageBackground>
   );
 }
 const styles = StyleSheet.create({
@@ -41,6 +38,5 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     fontWeight: "bold",
-    // color: result === "win" ? "green" : "red",
   },
 });

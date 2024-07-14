@@ -27,36 +27,19 @@ export default function Friends() {
     if (userLogged) {
       getFriends(userLogged)
         .then((data) => {
-          console.log("data friends endpoint :>> ", data);
           const friends_usernames = data.map((fr) => fr.user2_username);
           setFriends(friends_usernames);
         })
-        .catch((err) => console.log("err :>> ", err));;
+        .catch((err) => console.log("Error getting friends:", err));;
     }
   }, [userLogged]);
 
-  /* useEffect(() => {
-    if (friends.length > 0) {
-      const fetchFriendsDetails = async () => {
-        const details = await Promise.all(
-          friends.map((friend) => getUserByUsername(friend))
-        );
-        console.log("details :>> ", details);
-        const users = details.map(({ user }) => user);
-        console.log("users :>> ", users);
-        setFriendsDetails(users);
-      };
-      fetchFriendsDetails();
-    }
-  }, [friends]); */
   useEffect(() => {
     if (friends.length > 0) {
       friends.map((friend) => {
         getUserByUsername(friend).then(({ user }) => {
           getAvatar(user.avatar_id)
             .then(({ avatar }) => {
-              /* console.log("user inside getUserByUsername Nested :>> ", user);
-            console.log("avatar nested :>> ", avatar); */
               const fullFriendData = { ...user, avatar_url: avatar.avatar_url };
               setFriendsDetails((currentData) => {
                 return [...currentData, fullFriendData];
@@ -67,8 +50,6 @@ export default function Friends() {
       });
     }
   }, [friends]);
-
-  console.log("friendsDetails :>> ", friendsDetails);
 
   const renderFriendCard = (friend) => {
     return (
@@ -149,7 +130,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   friendDetails: {
-    //flex: 1,
     width: "60%",
   },
   friendInfo: {

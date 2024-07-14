@@ -31,8 +31,6 @@ export default function LoginPage({ setIsLoggedIn }) {
   }, []);
 
   const onLogInButtonPressed = async () => {
-    // validate user from backend
-
     const userData = {
       username: usernameInput,
       password: passwordInput,
@@ -40,7 +38,6 @@ export default function LoginPage({ setIsLoggedIn }) {
 
     try {
       const res = await postUserLogin(userData);
-      // console.log(Object.keys(res));
       if (res.status === 200) {
         await AsyncStorage.setItem("token", JSON.stringify(res.data));
         await AsyncStorage.setItem("userLogged", userData.username);
@@ -128,8 +125,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#051C60",
-    // width: "95%",
-    // textAlign: "left",
     margin: 10,
   },
 });
