@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const rumbleQuizApi = axios.create({
-  baseURL: "https://rumble-quiz-server.onrender.com/api",
+  baseURL: "https://rumble-quiz-server-1m0p.onrender.com/api",
 });
 
 export const getUserByUsername = (userLogged) => {

@@ -11,24 +11,11 @@ export default function Friends() {
   const [friendsDetails, setFriendsDetails] = useState([]);
   const { userLogged, login } = useContext(UserContext);
 
-  /* const getUserLogged = async () => {
-    try {
-      const user = await AsyncStorage.getItem("userLogged");
-      setUserLogged(user);
-    } catch (error) {
-      console.error("Error retrieving user from AsyncStorage", error);
-    }
-  };
-
-  useEffect(() => {
-    getUserLogged();
-  }, []); */
-
   useEffect(() => {
     if (userLogged) {
       getFriends(userLogged)
         .then((data) => {
-          console.log("data friends endpoint :>> ", data);
+          //console.log("data friends endpoint :>> ", data);
           const friends_usernames = data.map((fr) => fr.user2_username);
           setFriends(friends_usernames);
         })
@@ -55,8 +42,6 @@ export default function Friends() {
     }
   }, [friends]);
 
-  console.log("friendsDetails :>> ", friendsDetails);
-
   const renderFriendCard = (friend) => {
     return (
       <View style={styles.card}>
@@ -66,9 +51,17 @@ export default function Friends() {
         <View style={styles.friendDetails}>
           <View style={styles.friendInfo}>
             <Text style={styles.friendUsername}>{friend.username}</Text>
-            <View style={styles.statusIndicator} />
+            <View
+              style={
+                friend.online
+                  ? styles.onlineStatusIndicator
+                  : styles.offlineStatusIndicator
+              }
+            />
           </View>
-          <Text style={styles.onlineStatus}>Offline</Text>
+          <Text style={styles.onlineStatus}>
+            {friend.online ? "Online" : "Offline"}
+          </Text>
         </View>
       </View>
     );
@@ -148,11 +141,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginRight: 10,
   },
-  statusIndicator: {
+  offlineStatusIndicator: {
     width: 12,
     height: 12,
     borderRadius: 6,
     backgroundColor: "#ff0000",
+  },
+  onlineStatusIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "green",
   },
   onlineStatus: {
     fontSize: 16,
