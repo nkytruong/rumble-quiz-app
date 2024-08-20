@@ -33,6 +33,14 @@ import EndOfGame from "./Components/EndOfGame";
 
 const Stack = createNativeStackNavigator();
 
+import TimeAgo from "javascript-time-ago";
+
+import en from "javascript-time-ago/locale/en";
+import es from "javascript-time-ago/locale/es";
+import People from "./Components/People";
+
+TimeAgo.addDefaultLocale(en);
+
 /* const themeDark = {
   ...DefaultTheme,
   colors: colorsDark.colors,
@@ -133,6 +141,7 @@ export default function App() {
       </Stack.Screen>
       <Stack.Screen name="Notifications" component={NotificationsList} />
       <Stack.Screen name="Friends" component={Friends} />
+      <Stack.Screen name="People" component={People} />
       <Stack.Screen name="CreateAccount">
         {(props) => (
           <CreateAccountPage

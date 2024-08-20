@@ -2,12 +2,12 @@ import { View, Image, StyleSheet } from "react-native";
 import React, { useState } from "react";
 import { socket } from "../socket";
 
-export default function PlayerAvatars() {
+export default function PlayerAvatars({avatars}) {
   const [initialAvatars_urls, setInitialAvatars_urls] = useState([]);
-
-  socket.on("avatars", (avatars) => {
+console.log('avatars :>> ', avatars);
+/*   socket.on("avatars", (avatars) => {
     setInitialAvatars_urls(Object.values(avatars));
-  });
+  }); */
 
   const styles = StyleSheet.create({
     avatars: {
@@ -26,8 +26,8 @@ export default function PlayerAvatars() {
   });
   return (
     <View style={styles.avatars_container}>
-      {initialAvatars_urls.length > 0
-        ? initialAvatars_urls.map((avatarUrl, index) => {
+      {avatars.length > 0
+        ? avatars.map((avatarUrl, index) => {
             return (
               <Image
                 key={index}

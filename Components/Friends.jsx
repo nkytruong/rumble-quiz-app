@@ -1,92 +1,107 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
 import { getAvatar, getFriends, getUserByUsername } from "../utils/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar } from "react-native-paper";
 import { UserContext } from "../context/UserContext";
+import UserCard from "./designComponents/UserCard";
+import CustomButton from "./CustomButton";
+import { useNavigation } from "@react-navigation/native";
+import People from "./People";
+
 export default function Friends() {
   //const [userLogged, setUserLogged] = useState("");
   const [friends, setFriends] = useState([]);
   const [friendsDetails, setFriendsDetails] = useState([]);
-  const { userLogged, login } = useContext(UserContext);
+  const [friendsUsernamesAndSelf, setFriendsUsernamesAndSelf] = useState([]);
+  const { userLogged } = useContext(UserContext);
+  const navigation = useNavigation();
+  const [unknownUser, setUnknownUser] = useState(false);
 
   useEffect(() => {
     if (userLogged) {
       getFriends(userLogged)
-        .then((data) => {
-          //console.log("data friends endpoint :>> ", data);
-          const friends_usernames = data.map((fr) => fr.user2_username);
-          setFriends(friends_usernames);
+        .then((friends_usernames) => {
+          const uniqueFriendsUsernames = [...new Set(friends_usernames)];
+          setFriends(uniqueFriendsUsernames);
         })
         .catch((err) => console.log("err :>> ", err));
     }
-  }, []);
+  }, [unknownUser]);
 
   useEffect(() => {
     if (friends.length > 0) {
-      friends.map((friend) => {
-        getUserByUsername(friend).then(({ user }) => {
-          getAvatar(user.avatar_id)
-            .then(({ avatar }) => {
-              /* console.log("user inside getUserByUsername Nested :>> ", user);
-            console.log("avatar nested :>> ", avatar); */
-              const fullFriendData = { ...user, avatar_url: avatar.avatar_url };
-              setFriendsDetails((currentData) => {
-                return [...currentData, fullFriendData];
-              });
-            })
-            .catch((err) => console.log("err :>> ", err));
-        });
+      setFriendsDetails([]);
+      setFriendsUsernamesAndSelf([]);
+
+      friends.forEach((friend) => {
+        getUserByUsername(friend)
+          .then(({ user }) => {
+            setFriendsDetails((currentData) => {
+              if (
+                !currentData.some(
+                  (currIndv) => currIndv.username === user.username
+                )
+              ) {
+                return [...currentData, user];
+              }
+              return currentData;
+            });
+
+            setFriendsUsernamesAndSelf((currentData) => {
+              if (!currentData.includes(user.username)) {
+                return [...currentData, user.username];
+              }
+              return currentData;
+            });
+          })
+          .catch((err) => console.log("err :>> ", err));
       });
     }
   }, [friends]);
 
-  const renderFriendCard = (friend) => {
+
+  if (!unknownUser) {
     return (
-      <View style={styles.card}>
-        <View style={styles.avatar_image}>
-          <Avatar.Image source={{ uri: friend.avatar_url }} />
+      <SafeAreaView style={styles.container}>
+        <View style={styles.topBanner}>
+          <Text style={styles.h2}>Friends</Text>
         </View>
-        <View style={styles.friendDetails}>
-          <View style={styles.friendInfo}>
-            <Text style={styles.friendUsername}>{friend.username}</Text>
-            <View
-              style={
-                friend.online
-                  ? styles.onlineStatusIndicator
-                  : styles.offlineStatusIndicator
-              }
+        <ScrollView>
+          <View style={styles.friendsList}>
+            {friendsDetails.map((friend) => {
+              return <UserCard key={friend.username} user={friend} />;
+            })}
+          </View>
+
+          <View style={{ width: "90%", margin: "auto" }}>
+            <CustomButton
+              text="View all users"
+              onPress={() => {
+                setUnknownUser(true);
+              }}
             />
           </View>
-          <Text style={styles.onlineStatus}>
-            {friend.online ? "Online" : "Offline"}
-          </Text>
-        </View>
-      </View>
+        </ScrollView>
+      </SafeAreaView>
     );
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.topBanner}>
-        <Text style={styles.h2}>Friends</Text>
-      </View>
-      <View style={styles.friendsList}>
-        {friendsDetails.map((friend) => (
-          <View style={styles.cardContainer} key={friend.username}>
-            {renderFriendCard(friend)}
-          </View>
-        ))}
-      </View>
-    </SafeAreaView>
-  );
+  } else {
+    return (
+      <People
+        friendsUsernamesAndSelf={friendsUsernamesAndSelf}
+        unknownUser={unknownUser}
+        setUnknownUser={setUnknownUser}
+      />
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
+    paddingBottom: 66,
   },
   topBanner: {
     backgroundColor: "rgb(30, 144, 255)",

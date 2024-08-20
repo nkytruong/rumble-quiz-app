@@ -6,15 +6,19 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [userLogged, setUserLogged] = useState(null);
+  const [userLoggedID, setUserLoggedID] = useState();
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const userData = await AsyncStorage.getItem("userLogged");
-        console.log("userData context :>> ", typeof userData);
+        const userDataID = await AsyncStorage.getItem("userLoggedID");
+        console.log("userData context :>> ", userData);
+        console.log("userDataID context :>> ", userDataID);
         if (userData) {
           setUserLogged(userData);
         }
+        if (userDataID) setUserLoggedID(userDataID);
       } catch (error) {
         console.error("Failed to load user:", error);
       }
@@ -30,15 +34,18 @@ export const UserProvider = ({ children }) => {
       if (res.status === 200) {
         await AsyncStorage.setItem("token", JSON.stringify(res.data));
         await AsyncStorage.setItem("userLogged", userData.username);
+        await AsyncStorage.setItem(
+          "userLoggedID",
+          JSON.stringify(res.data.successfulLogin.user.user_id)
+        );
         await AsyncStorage.setItem("isLoggedIn", JSON.stringify(true));
         //setIsLoggedIn(true);
+
         setUserLogged(userData.username);
+        setUserLoggedID(res.data.successfulLogin.user.user_id);
         navigation.navigate("AppNavigation");
       } else {
-        alert(
-          "Login failed",
-          "Please check your credentials and try again."
-        );
+        alert("Login failed", "Please check your credentials and try again.");
       }
     } catch (error) {
       console.log("error in post request for login ", error);
@@ -46,11 +53,11 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-const editUser = async (userToEdit, patchBody) => {
-  try {
+  const editUser = async (userToEdit, patchBody) => {
+    try {
       const res = await patchUserByUsername(userLogged, patchBody);
       if (res.status === 200) {
-        console.log('res :>> ', res);
+        console.log("res :>> ", res);
         //await AsyncStorage.setItem("userLogged", newUsername);
         console.log("Updated userLogged, userLogged");
       }
@@ -67,16 +74,22 @@ const editUser = async (userToEdit, patchBody) => {
       navigation.navigate("LogIn");
       //setIsLoggedIn(false);
       setUserLogged(null);
+      setUserLoggedID(null);
     } catch (error) {
       console.error("Failed to remove user:", error);
     }
   };
 
-  
-
   return (
     <UserContext.Provider
-      value={{ userLogged, setUserLogged, login, logout, editUser }}
+      value={{
+        userLogged,
+        userLoggedID,
+        setUserLogged,
+        login,
+        logout,
+        editUser,
+      }}
     >
       {children}
     </UserContext.Provider>

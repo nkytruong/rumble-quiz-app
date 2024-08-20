@@ -35,6 +35,15 @@ export default function Topics() {
     }
   }; */
   useEffect(() => {
+    const fetchAvatarFromStorage = async () => {
+      try {
+        const avatar_URL = await AsyncStorage.getItem("avatar_url");
+        setAvatar(avatar_URL);
+      } catch (error) {
+        console.error("Error retrieving avatar URL from AsyncStorage", error);
+      }
+    };
+
     getCategories()
       .then((data) => {
         const { trivia_categories } = data;
@@ -42,11 +51,15 @@ export default function Topics() {
       })
       .catch((err) => console.log("err :>> ", err));
     /* getUserLogged(); */
+    fetchAvatarFromStorage();
   }, []);
 
   const handleSelection = async (id, name) => {
     console.log(id, "<< id");
     console.log("topic name :>> ", name);
+    console.log("userLogged :>> ", userLogged);
+    console.log("avatar :>> ", avatar);    console.log("userLogged :>> ", userLogged);
+
     await setSelectedTopic(id);
     if (userLogged && avatar) {
       socket.emit(

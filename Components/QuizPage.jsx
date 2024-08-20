@@ -13,11 +13,14 @@ import {UserContext} from "../context/UserContext";
 export default function QuizPage({ topic_id }) {
   const [avatarsReceived, setAvatarsReceived] = useState(false);
   const { userLogged, login } = useContext(UserContext);
+  const [avatarURLS, setAvatarURLS] = useState([])
   useEffect(() => {
     console.log("<<: mount QuizPage!! :>> ");
     console.log("userLogged mounting QuizPage:>> ", userLogged);
     console.log("<<: topic_id!! QuizPage :>> ", topic_id);
-    socket.on("avatars", () => {
+    
+    socket.on("avatars", (avatars) => {
+      setAvatarURLS(Object.values(avatars))
       setAvatarsReceived(true)
     })
     return () => {
@@ -33,7 +36,7 @@ export default function QuizPage({ topic_id }) {
   if(avatarsReceived){
     return (
       <ScrollView>
-        <PlayerAvatars />
+        <PlayerAvatars avatars={avatarURLS} />
         <CountdownTimer />
         <QuestionCard />
       </ScrollView>

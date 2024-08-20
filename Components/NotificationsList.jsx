@@ -6,62 +6,130 @@ import {
   Image,
   FlatList,
 } from "react-native";
-import React, {useContext} from "react";
+import React, { useContext, useEffect, useState } from "react";
+import ReactTimeAgo from "react-time-ago";
 
-import {UserContext} from "../context/UserContext";
-const notifications = [
-  {
-    id: 1,
-    title: "Friend Request",
-    description: "RobotOverlord has sent you a friend request.",
-    image: require("../assets/avatars/icons8-gorilla-48.png"),
-    backgroundColor: "#b22222",
-  },
-  {
-    id: 2,
-    title: "Friend Added",
-    description: "PirateQueen has accepted your friend request.",
-    image: require("../assets/avatars/icons8-lion-48.png"),
-    backgroundColor: "#90ee90",
-  },
-  {
-    id: 3,
-    title: "Friend Request",
-    description: "NinjaWarrior has sent you a friend request.",
-    image: require("../assets/avatars/icons8-tiger-48.png"),
-    backgroundColor: "#daa520",
-  },
-];
+import { UserContext } from "../context/UserContext";
+import {
+  getNotifications,
+  getUserByUsername,
+  readingNotifications,
+} from "../utils/api";
+
+function Time({ children }) {
+  return <Text>{children}</Text>;
+}
 
 export default function NotificationsList() {
-const {userLogged, login} = useContext(UserContext);
+  const { userLogged, login } = useContext(UserContext);
+  const [notificationsList, setNotificationsList] = useState([]);
+  const [fullNotifications, setFullNotifications] = useState([]);
+
+  useEffect(() => {
+    getNotifications(userLogged).then((notifications) => {
+      setNotificationsList(notifications);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (notificationsList.length > 0) {
+      const fetchUsers = async () => {
+        const updatedNotifications = await Promise.all(
+          notificationsList.map(async (notif) => {
+            const { user } = await getUserByUsername(notif.sender_id);
+            return {
+              ...notif,
+              sender_name: user.username,
+              avatar_name: user.avatar_name,
+              avatar_url: user.avatar_url,
+            };
+          })
+        );
+        setFullNotifications(updatedNotifications);
+      };
+      fetchUsers();
+    }
+  }, [notificationsList]);
+
   const renderNotification = ({ item }) => (
-    <View style={styles.notificationCard}>
+    <View
+      style={[
+        styles.notificationCard,
+        { backgroundColor: item.seen ? "lightgrey" : "#85c3ff" },
+      ]}
+    >
       <View
         style={[
           styles.profileImageContainer,
           { backgroundColor: item.backgroundColor },
         ]}
       />
-      <Image source={item.image} style={styles.profileImage} />
+      <Image source={{ uri: item.avatar_url }} style={styles.profileImage} />
       <View style={styles.notificationText}>
-        <Text style={styles.notificationTitle}>{item.title}</Text>
-        <Text style={styles.notificationDescription}>{item.description}</Text>
+        <Text style={styles.notificationTitle}>{item.sender_name}</Text>
+        <Text style={styles.notificationDescription}>
+          {item.notification_text}
+        </Text>
+        <Text>
+          <ReactTimeAgo
+            date={
+              typeof item.time === "number"
+                ? item.time
+                : new Date(item.time).getTime()
+            }
+            component={Time}
+          />
+        </Text>
       </View>
     </View>
   );
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (fullNotifications.length > 0) {
+        fullNotifications.forEach((notif) => {
+          if (notif && notif.notification_id) {
+            if (!notif.seen) {
+              readingNotifications(notif.notification_id)
+                .then((notification) => {
+                  if (notification) {
+                    setFullNotifications((current) =>
+                      current.map((n) =>
+                        n.notification_id === notification.notification_id
+                          ? notification
+                          : n
+                      )
+                    );
+                  }
+                })
+                .catch((error) => {
+                  console.error(
+                    `Failed to mark notification as read: ${notif.notification_id}`,
+                    error
+                  );
+                });
+            }
+          } else {
+            console.error("Invalid notification", notif);
+          }
+        });
+      }
+    }, 5000);
+  }, [fullNotifications]);
+
 
   return (
     <View style={styles.container}>
       <ImageBackground
         source={{ uri: "../assets/jigsaw_puzzle_frame_6_a_white.jpg" }}
-        style={styles.headerStrip}>
+        style={styles.headerStrip}
+      >
         <Text style={styles.headerText}>Notifications</Text>
       </ImageBackground>
       <FlatList
-        data={notifications}
+        data={fullNotifications}
         renderItem={renderNotification}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.notification_id}
         contentContainerStyle={styles.listContainer}
       />
     </View>
@@ -102,6 +170,9 @@ const styles = StyleSheet.create({
     elevation: 3,
     flexDirection: "row",
     alignItems: "center",
+  },
+  avatar_image: {
+    width: "15%",
   },
   profileImage: {
     width: 48,
